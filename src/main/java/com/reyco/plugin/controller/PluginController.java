@@ -14,6 +14,7 @@ import com.reyco.plugin.service.PluginService;
 @RequestMapping("plugin")
 public class PluginController {
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
+	
 	@Autowired
 	private PluginService pluginService;
 	

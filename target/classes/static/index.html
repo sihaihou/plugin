@@ -5,255 +5,252 @@
 <title>Insert title here</title>
 <link rel="stylesheet" href="css/reyco.css" type="text/css" />
 <style type="text/css">
-	a{
-		cursor: pointer;
-	}
-	.table tbody tr td,.table thead tr th {
-		 border: 1px solid #DDD;
-		 text-indent: 20px;
-		 padding: 5px 4px;
-		 font-size: 12px;
-	}
-	.am-form-group{
-		margin-bottom: 0.5em;
-	}
+a {
+	cursor: pointer;
+}
+
+.table tbody tr td, .table thead tr th {
+	border: 1px solid #DDD;
+	text-indent: 20px;
+	padding: 5px 4px;
+	font-size: 12px;
+}
+
+.am-form-group {
+	margin-bottom: 0.5em;
+}
 </style>
 <script type="text/javascript" src="js/jquery-3.2.1.js"></script>
 <script type="text/javascript" src="js/template-native.js"></script>
 <script type="text/javascript" src="js/reyco.js"></script>
 
 <script type="text/javascript">
-$(function() {
-	plugin_list();
-});
-function plugin_list() {
-	$.ajax({
-		type : 'get',
-		dataType : "json",
-		url : "plugin/list",
-		data : {
-			time : new Date()
-		},
-		success : function(data) {
-			$("#tbody").empty();
-			for(var i=0;i<data.length;i++){
-				var plugin_active = '未启用';
-				if(data[i].active){
-					plugin_active = '已启用';
-				}
-				var tr_node = $("<tr>"+
-						"<td>"+data[i].id+"</td>"+
-    			        "<td><div class='display_none_100' title="+data[i].className+">"+data[i].className+"</div></td>"+
-    			        "<td><div class='display_none_150' title="+data[i].jarRemoteUrl+">"+data[i].jarRemoteUrl+"</div></td>"+
-    			        "<td>"+data[i].version+"</td>"+
-						"<td><div class='display_none_100' title="+data[i].name+">"+data[i].name+"</div></td>"+
-    			        "<td class='delete'><input class='active' type='radio' name='resume"+data[i].id+"' value='"+data[i].active+"-"+data[i].id+"' onclick='btn_resume("+data[i].id+")'/></td>"+
-    			        "<td class='delete'><input class='pause' type='radio' name='resume"+data[i].id+"' value='"+data[i].active+"-"+data[i].id+"' onclick='btn_pause("+data[i].id+")'/></td>"+
-    			        "<td class='delete'><button onclick='btn_delete("+data[i].id+")'><i class='icon-trash bigger-120 show'>删除</i></button></td>"+
-    			        +"</tr>");
-    			$("#tbody").append(tr_node);
-    		}
-			let plugin_radioArr = $("input[type=radio]");
-			for(let i=0;i<plugin_radioArr.length;i++){
-				let plugin_radio_valueArr = plugin_radioArr[i].value.split('-',2);
-				let active = plugin_radio_valueArr[0];
-				let classValue = plugin_radioArr[i].getAttribute("class");
-				if(classValue=='active'){
-					if(active=='true'){
-						plugin_radioArr[i].checked=true;
-					}
-				}else if(classValue=='pause'){
-					if(active=='false'){
-						plugin_radioArr[i].checked=true;
-					}
-				}
-			}
-		},
-		error : function() {
-		}
+	$(function() {
+		plugin_list();
 	});
-}
-function plugin_resume(id) {
-	 return new Promise(function(resolve,reject){
-		 $.ajax({
+	function plugin_list() {
+		$.ajax({
+			type : 'get',
+			dataType : "json",
+			url : "plugin/list",
+			data : {
+				time : new Date()
+			},
+			success : function(data) {
+				$("#tbody").empty();
+				for (var i = 0; i < data.length; i++) {
+					var plugin_active = '未启用';
+					if (data[i].active) {
+						plugin_active = '已启用';
+					}
+					var tr_node = $("<tr>" + "<td>"+ data[i].id+ "</td>"
+							+ "<td><div class='display_none_100' title="+data[i].className+">"+data[i].className+"</div></td>"
+							+ "<td><div class='display_none_150' title="+data[i].jarRemoteUrl+">"+data[i].jarRemoteUrl+"</div></td>"
+							+ "<td>"+ data[i].version+ "</td>"
+							+ "<td><div class='display_none_100' title="+data[i].name+">"+data[i].name+"</div></td>"
+							+ "<td class='delete'><input class='active' type='radio' name='resume"+data[i].id+"'value='"+data[i].active+"-"+data[i].id+"'onclick='btn_resume(event,"+data[i].id+")'/></td>"
+							+ "<td class='delete'><input class='pause' type='radio' name='resume"+ data[i].id+"'value='"+ data[i].active+"-"+ data[i].id+"'onclick='btn_pause(event,"+data[i].id+")'/></td>"
+							+ "<td class='delete'><button onclick='btn_delete(event,"+ data[i].id+")'><i class='icon-trash bigger-120 show'>删除</i></button></td>"
+							+ +"</tr>");
+					$("#tbody").append(tr_node);
+				}
+				let plugin_radioArr = $("input[type=radio]");
+				for (let i = 0; i < plugin_radioArr.length; i++) {
+					let plugin_radio_valueArr = plugin_radioArr[i].value.split('-', 2);
+					let active = plugin_radio_valueArr[0];
+					let classValue = plugin_radioArr[i].getAttribute("class");
+					if (classValue == 'active') {
+						if (active == 'true') {
+							plugin_radioArr[i].checked = true;
+						}
+					} else if (classValue == 'pause') {
+						if (active == 'false') {
+							plugin_radioArr[i].checked = true;
+						}
+					}
+				}
+			},
+			error : function() {
+			}
+		});
+	}
+	function plugin_resume(id) {
+		return new Promise(function(resolve, reject) {
+			$.ajax({
 				type : 'get',
 				dataType : "text",
 				url : "plugin/resume",
 				data : {
 					time : new Date(),
-					id:id
+					id : id
 				},
 				success : function(data) {
-				 	resolve(data);
+					resolve(data);
 				},
 				error : function() {
 				}
 			});
-	    })
-}
-function plugin_pause(id) {
-	return new Promise(function(resolve,reject){
-		$.ajax({
-			type : 'get',
-			dataType : "text",
-			url : "plugin/pause",
-			data : {
-				time : new Date(),
-				id:id
-			},
-			success : function(data) {
-				resolve(data);
-			},
-			error : function(error) {
-				console.log(error)
+		})
+	}
+	function plugin_pause(id) {
+		return new Promise(function(resolve, reject) {
+			$.ajax({
+				type : 'get',
+				dataType : "text",
+				url : "plugin/pause",
+				data : {
+					time : new Date(),
+					id : id
+				},
+				success : function(data) {
+					resolve(data);
+				},
+				error : function(error) {
+					console.log(error)
+				}
+			});
+		})
+	}
+	function plugin_delete(id) {
+		return new Promise(function(resolve, reject) {
+			$.ajax({
+				type : 'get',
+				dataType : "text",
+				url : "plugin/delete",
+				data : {
+					time : new Date(),
+					id : id
+				},
+				success : function(data) {
+					resolve(data);
+				},
+				error : function() {
+				}
+			});
+		})
+	}
+	function plugin_flush() {
+		return new Promise(function(resolve, reject) {
+			$.ajax({
+				type : 'get',
+				dataType : "text",
+				url : "plugin/add",
+				data : {
+					time : new Date()
+				},
+				success : function(data) {
+					resolve(data);
+				},
+				error : function() {
+				}
+			});
+		})
+	}
+	function count() {
+		return new Promise(function(resolve, reject) {
+			$.ajax({
+				type : 'get',
+				dataType : "text",
+				url : "test",
+				data : {
+					time : new Date()
+				},
+				success : function(data) {
+					resolve(data);
+				},
+				error : function() {
+				}
+			});
+		})
+	}
+	function lock() {
+		return new Promise(function(resolve, reject) {
+			$.ajax({
+				type : 'get',
+				dataType : "text",
+				url : "lock",
+				data : {
+					time : new Date()
+				},
+				success : function(data) {
+					resolve(data);
+				},
+				error : function() {
+				}
+			});
+		})
+	}
+	async function btn_resume(event, id) {
+		if (confirm("您确定要启用吗？")) {
+			let data = await
+			plugin_resume(id);
+			if (data != null) {
+				plugin_list();
 			}
-		});
-	})
-}
-function plugin_delete(id) {
-	return new Promise(function(resolve,reject){
-		$.ajax({
-			type:'get',
-			dataType:"text",
-			url:"plugin/delete",
-			data:{
-				time : new Date(),
-				id:id
-			},
-			success : function(data) {
-				resolve(data);
-			},
-			error:function() {
-			}
-		});
-	})
-}
-function plugin_flush(){
-	return new Promise(function(resolve,reject){
-		$.ajax({
-			type:'get',
-			dataType:"text",
-			url:"plugin/add",
-			data:{
-				time : new Date()
-			},
-			success : function(data) {
-				resolve(data);
-			},
-			error:function() {
-			}
-		});
-	})
-}
-function count(){
-	return new Promise(function(resolve,reject){
-		$.ajax({
-			type:'get',
-			dataType:"text",
-			url:"test",
-			data:{
-				time : new Date()
-			},
-			success : function(data) {
-				resolve(data);
-			},
-			error:function() {
-			}
-		});
-	})
-}
-function lock(){
-	return new Promise(function(resolve,reject){
-		$.ajax({
-			type:'get',
-			dataType:"text",
-			url:"lock",
-			data:{
-				time : new Date()
-			},
-			success : function(data) {
-				resolve(data);
-			},
-			error:function() {
-			}
-		});
-	})
-}
-async function btn_resume(id){
-	if(confirm("您确定要启用吗？")){
-		 let data = await plugin_resume(id);
-		 if(data!=null){
-		 	plugin_list();
+			return true;
 		}
-	    // 删除
-	     return true;
-	  }else{
-		 plugin_list();
-	     return false;
-	  }  
-}
-async function btn_pause(id){
-	 if(confirm("您确定要暂停吗？")){
-		let data = await plugin_pause(id);
-		if(data!=null){
-			plugin_list();
+		event.preventDefault();
+	}
+	async function btn_pause(event, id) {
+		if (confirm("您确定要暂停吗？")) {
+			let data = await
+			plugin_pause(id);
+			if (data != null) {
+				plugin_list();
+			}
+			return true;
 		}
-	    // 删除
-	    return true;
-	  }else{
-		 plugin_list();
-	     return false;
-	  } 
-}
-async function btn_delete(id){
-	 if(confirm("您确定要删除吗？")){
-		let data = await plugin_delete(id);
-		if(data!=null){
-			plugin_list();
+		event.preventDefault();
+	}
+	async function btn_delete(event,id) {
+		if (confirm("您确定要删除吗？")) {
+			let data = await
+			plugin_delete(id);
+			if (data != null) {
+				plugin_list();
+			}
+			return true;
 		}
-	    // 删除
-	    return true;
-	  }else{
-	     return false;
-	  } 
-}
-async function flushPlugin(){
-	 if(confirm("您确定要刷新吗？")){
-		 let data = await plugin_flush();
-		 if(data!=null){
-			 plugin_list();
-		 }
-	    // 删除
-	    return true;
-	  }else{
-	     return false;
-	  } 
-}
+		event.preventDefault();
 
-//console.log(testTemp);
+	}
+	async function flushPlugin(event) {
+		if (confirm("您确定要刷新吗？")) {
+			let data = await
+			plugin_flush();
+			if (data != null) {
+				plugin_list();
+			}
+			return true;
+		}
+		event.preventDefault();
+	}
 </script>
 </head>
 <body>
-	<div style="display:inline"><a href="javascript:(0)" onclick="flushPlugin()">刷新插件</a></div>
-	<div style="display:inline"><a href="javascript:(0)" onclick="count()">统计调用次数</a></div>
-	<div style="display:inline"><a href="javascript:(0)" onclick="lock()">加锁</a></div>
+	<div style="display: inline">
+		<a href="javascript:(0)" onclick="flushPlugin(event)">刷新插件</a>
+	</div>
+	<div style="display: inline">
+		<a href="javascript:(0)" onclick="count(event)">统计调用次数</a>
+	</div>
 	<table class="table">
 		<thead>
 			<tr>
-			<th>id</th>
-			<th>className</th>
-			<th>jarRemoteUrl</th>
-			<th>version</th>
-			<th>name</th>
-			<th>启用</th>
-			<th>暂停</th>
-			<th>删除</th>
+				<th>id</th>
+				<th>className</th>
+				<th>jarRemoteUrl</th>
+				<th>version</th>
+				<th>name</th>
+				<th>启用</th>
+				<th>暂停</th>
+				<th>删除</th>
 			</tr>
 		</thead>
 		<tbody id="tbody">
 		</tbody>
 	</table>
-	
-	
+
+
 </body>
 </html>

@@ -1,8 +1,11 @@
 package com.reyco.plugin.model;
 
 public class Plugins {
+	
 	private String configs;
+	
 	private String name;
+	
 	public String getConfigs() {
 		return configs;
 	}

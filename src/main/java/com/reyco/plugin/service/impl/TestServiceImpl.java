@@ -15,14 +15,15 @@ public class TestServiceImpl implements TestService{
 	
 	
 	public String test() {
-		logger.info("执行目标方法test");
+		logger.info("##############################执行目标方法test");
 		return "";
 	}
 	
 	@Transactional
 	public String test1() {
-		logger.info("执行目标方法test1");
+		logger.info("##############################执行目标方法test1");
 		TransactionAspectSupport.currentTransactionStatus().isRollbackOnly();
 		return "";
 	}
+	
 }

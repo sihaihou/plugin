@@ -32,15 +32,18 @@ public class PluginServiceImpl extends AbstractPluginService implements Initiali
 	public Collection<PluginConfig> list() {
 		return pluginConfigCacheMap.values();
 	}
+	
 	@Override
 	public void add() throws Exception {
 		// 刷新配置
 		Collection<PluginConfig> flushConfigs = flushConfigs();
+		
 		// 循环处理配置
 		for (Iterator<PluginConfig> iterator = flushConfigs.iterator(); iterator.hasNext();) {
 			PluginConfig pluginConfig = iterator.next();
 			loadAdvice(pluginConfig);
 		}
+		
 		// 是否启用配置
 		for (Iterator<PluginConfig> iterator = flushConfigs.iterator(); iterator.hasNext();) {
 			PluginConfig pluginConfig = iterator.next();
@@ -68,6 +71,7 @@ public class PluginServiceImpl extends AbstractPluginService implements Initiali
 
 	@Override
 	public void delete(PluginConfig pluginConfig) throws Exception {
+		
 		// 暂停插件
 		pause(pluginConfig);
 
@@ -77,10 +81,12 @@ public class PluginServiceImpl extends AbstractPluginService implements Initiali
 		if (adviceCacheMap.containsKey(pluginKey)) {
 			adviceCacheMap.remove(pluginKey);
 		}
+		
 		// 移除pluginConfig对象
 		if (pluginConfigCacheMap.containsKey(pluginKey)) {
 			pluginConfigCacheMap.remove(pluginKey);
 		}
+		
 		logger.debug("【" + pluginConfig + "】通知已移除");
 		// 移除线程变量
 		pluginKeyThreadLocal.remove();
@@ -89,12 +95,15 @@ public class PluginServiceImpl extends AbstractPluginService implements Initiali
 	@Override
 	public void pause(PluginConfig pluginConfigParam) throws Exception {
 		String pluginKey = getPluginKey(pluginConfigParam);
+		
 		if (!adviceCacheMap.containsKey(pluginKey)) {
 			throw new RuntimeException("advice does not exist");
 		}
+		
 		if (!pluginConfigCacheMap.containsKey(pluginKey)) {
 			throw new RuntimeException("pluginConfig does not exist");
 		}
+		
 		PluginConfig pluginConfig = pluginConfigCacheMap.get(pluginKey);
 		logger.debug("需要暂停的插件:【" + pluginConfig + "】");
 		// 如果插件未启用直接return
@@ -103,6 +112,7 @@ public class PluginServiceImpl extends AbstractPluginService implements Initiali
 			logger.debug("【" + pluginConfigParam + "】插件未启用,不需要暂停。");
 			return;
 		}
+		
 		// 移除通知
 		for (String name : applicationContext.getBeanDefinitionNames()) {
 			Object bean = applicationContext.getBean(name);
@@ -116,9 +126,11 @@ public class PluginServiceImpl extends AbstractPluginService implements Initiali
 			Advice advice = (Advice) instantiate;
 			((Advised) bean).removeAdvice(advice);
 		}
+		
 		// 修改通知未启用状态
 		pluginConfig.setActive(false);
 		logger.debug("【" + pluginConfig + "】插件已暂停.");
+		
 		// 移除线程变量
 		pluginKeyThreadLocal.remove();
 	}
@@ -129,21 +141,27 @@ public class PluginServiceImpl extends AbstractPluginService implements Initiali
 		if (!pluginConfigCacheMap.containsKey(pluginKey)) {
 			throw new RuntimeException("pluginConfig does not exist");
 		}
+		
 		PluginConfig pluginConfig = pluginConfigCacheMap.get(pluginKey);
 		logger.debug("需要启用的插件:【" + pluginConfig + "】");
 		if (!adviceCacheMap.containsKey(pluginKey)) {
 			throw new RuntimeException("advice does not exist");
 		}
+		
 		Object instantiate = adviceCacheMap.get(pluginKey);
 		if(instantiate instanceof HelloTest) {
 			return;
 		}
+		
 		// 添加通知
 		for (String name : applicationContext.getBeanDefinitionNames()) {
+			
 			Object bean = applicationContext.getBean(name);
+			
 			if (bean == this) {
 				continue;
 			}
+			
 			if (!(bean instanceof Advised)) {
 				continue;
 			}
@@ -157,15 +175,19 @@ public class PluginServiceImpl extends AbstractPluginService implements Initiali
 					exist = true;
 				}
 			}
+			
 			// 通知不存在则添加
 			if (!exist) {
 				Advice advice = (Advice) instantiate;
 				((Advised) bean).addAdvice(advice);
 			}
+			
 		}
+		
 		// 修改通知为启用状态
 		pluginConfig.setActive(true);
 		logger.debug("【" + pluginConfig + "】插件已启用.");
+		
 		// 移除线程变量
 		pluginKeyThreadLocal.remove();
 	}
@@ -182,12 +204,15 @@ public class PluginServiceImpl extends AbstractPluginService implements Initiali
 		adviceCacheMap.clear();
 		pluginConfigCacheMap.clear();
 	}
+	
 	@PostConstruct
 	public void postConstruct() {
 		logger.debug("3---------------postConstruct");
 	}
+	
 	@Autowired
 	public void autowired() {
 		logger.debug("2---------------autowired");
 	}
+	
 }

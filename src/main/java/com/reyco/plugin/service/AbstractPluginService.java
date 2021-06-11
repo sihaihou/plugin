@@ -26,7 +26,11 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.reyco.plugin.model.PluginConfig;
 import com.reyco.plugin.model.Plugins;
-
+/**
+ * 插件借口的抽象实现类
+ * @author reyco
+ *
+ */
 public abstract class AbstractPluginService implements PluginService,ApplicationContextAware {
 	
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -94,7 +98,9 @@ public abstract class AbstractPluginService implements PluginService,Application
 		// 加载并反射创建对象
 		Class<?> adviceClazz = loader.loadClass(pluginConfig.getClassName());
 		Object adviceInstance = BeanUtils.instantiateClass(adviceClazz);
+		
 		adviceCacheMap.put(pluginKey,adviceInstance);
+		
 		return adviceCacheMap.get(pluginKey);
 	}
 
@@ -103,12 +109,16 @@ public abstract class AbstractPluginService implements PluginService,Application
 	 */
 	public Collection<PluginConfig> flushConfigs() {
 		File configFile = new File(configPath);
+		
 		// 读取配置文件到String
 		String pluginConfigStr = readConfigAsString(configFile);
+		
 		// 配置文件字符串转Plugins对象
 		Plugins plugins = parseToPlugins(pluginConfigStr);
+		
 		// 解析plugins为List<PluginConfig>
 		List<PluginConfig> pluginConfigs = pluginsToPluginConfigs(plugins);
+		
 		// 放入缓存
 		for (PluginConfig pluginConfig : pluginConfigs) {
 			String pluginKey = getPluginKey(pluginConfig);
@@ -117,6 +127,7 @@ public abstract class AbstractPluginService implements PluginService,Application
 				pluginConfigCacheMap.put(pluginKey, pluginConfig);
 			}
 		}
+		
 		return pluginConfigCacheMap.values();
 	}
 
@@ -128,10 +139,13 @@ public abstract class AbstractPluginService implements PluginService,Application
 	 */
 	protected List<PluginConfig> pluginsToPluginConfigs(Plugins plugins) {
 		List<PluginConfig> pluginConfigs = new ArrayList<>();
+		
 		// 获取插件集合字符串
 		String configs = plugins.getConfigs();
+		
 		// 插件集合字符串转JSONArray数组
 		JSONArray pluginConfigArray = JSONArray.parseArray(configs);
+		
 		// JSONArray转成List<PluginConfig>
 		for (Object pluginConfigObj : pluginConfigArray) {
 			JSONObject pluginConfigJSONObject = JSONObject.parseObject(pluginConfigObj.toString());
@@ -139,13 +153,13 @@ public abstract class AbstractPluginService implements PluginService,Application
 			PluginConfig pluginConfig = parseToPluginConfig(pluginConfigJSONObject);
 			pluginConfigs.add(pluginConfig);
 		}
+		
 		logger.debug("解析出的PluginConfigs对象:【"+pluginConfigs+"】");
 		return pluginConfigs;
 	}
 
 	/**
 	 * 配置文件字符串转Plugins对象
-	 * 
 	 * @param configFileStr
 	 * @return
 	 */
@@ -154,10 +168,12 @@ public abstract class AbstractPluginService implements PluginService,Application
 		JSONObject pluginConfigObject = JSONObject.parseObject(pluginConfigStr);
 		String configs = pluginConfigObject.getString("configs");
 		String name = pluginConfigObject.getString("name");
+		
 		// JSONObject转Plugins对象
 		Plugins plugins = new Plugins();
 		plugins.setConfigs(configs);
 		plugins.setName(name);
+		
 		logger.debug("解析的Plugins对象:【"+plugins+"】");
 		return plugins;
 	}
@@ -182,6 +198,7 @@ public abstract class AbstractPluginService implements PluginService,Application
 			}
 			String pluginConfigStr = pluginConfigSb.toString();
 			logger.debug("plugin.config配置文件内容:【"+pluginConfigStr+"】");
+			
 			return pluginConfigStr;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -195,12 +212,12 @@ public abstract class AbstractPluginService implements PluginService,Application
 
 	/**
 	 * configJSONObject转PluginConfig
-	 * 
 	 * @param pluginConfigJSONObject
 	 * @return
 	 */
 	protected PluginConfig parseToPluginConfig(JSONObject configJSONObject) {
 		PluginConfig pluginConfig = new PluginConfig();
+		
 		pluginConfig.setId(configJSONObject.getString("id"));
 		pluginConfig.setName(configJSONObject.getString("name"));
 		pluginConfig.setClassName(configJSONObject.getString("className"));
@@ -208,12 +225,12 @@ public abstract class AbstractPluginService implements PluginService,Application
 		pluginConfig.setJarRemoteUrl(configJSONObject.getString("jarRemoteUrl"));
 		pluginConfig.setActive(configJSONObject.getString("active").equals("1") ? true : false);
 		pluginConfig.setVersion(configJSONObject.getString("version"));
+		
 		return pluginConfig;
 	}
 
 	/**
 	 * 获取pluginKey
-	 * 
 	 * @param pluginConfig
 	 * @return
 	 */
@@ -221,15 +238,19 @@ public abstract class AbstractPluginService implements PluginService,Application
 		if (pluginConfig == null) {
 			throw new RuntimeException("pluginConfig is not null");
 		}
+		
 		Map<String, String> pluginKeyMap = pluginKeyThreadLocal.get();
 		String pluginKey = pluginConfig.getId() + LINES + pluginConfig.getVersion();
+		
 		if (pluginKeyMap == null) {
 			pluginKeyMap = new HashMap<>();
 			pluginKeyThreadLocal.set(pluginKeyMap);
 		}
+		
 		if (!pluginKeyMap.containsKey(pluginKey)) {
 			pluginKeyMap.put(pluginKey, pluginKey);
 		}
+		
 		return pluginKeyMap.get(pluginKey);
 	}
 	/**
@@ -259,17 +280,22 @@ public abstract class AbstractPluginService implements PluginService,Application
 		String beanName = name.replaceFirst(name.substring(0, 1), name.substring(0, 1).toLowerCase());
 		return beanName;
 	}
+	
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.applicationContext = applicationContext;
 	}
+	
 	public ApplicationContext getApplicationContext() {
 		return applicationContext;
 	}
+	
 	public void setConfigPath(String configPath) {
 		this.configPath = configPath;
 	}
+	
 	public String getConfigPath() {
 		return configPath;
 	}
+	
 }

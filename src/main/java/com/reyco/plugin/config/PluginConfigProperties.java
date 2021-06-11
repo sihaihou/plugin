@@ -25,4 +25,5 @@ public class PluginConfigProperties {
 	public void setConfigPath(String configPath) {
 		this.configPath = configPath;
 	}
+	
 }

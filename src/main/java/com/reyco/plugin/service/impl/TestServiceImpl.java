@@ -13,7 +13,6 @@ public class TestServiceImpl implements TestService{
 	
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	
 	public String test() {
 		logger.info("##############################执行目标方法test");
 		return "";
@@ -25,5 +24,5 @@ public class TestServiceImpl implements TestService{
 		TransactionAspectSupport.currentTransactionStatus().isRollbackOnly();
 		return "";
 	}
-	
+
 }

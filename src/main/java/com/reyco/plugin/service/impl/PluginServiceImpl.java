@@ -22,7 +22,7 @@ import com.reyco.plugin.service.AbstractPluginService;
 public class PluginServiceImpl extends AbstractPluginService implements InitializingBean,DisposableBean {
 	
 	@Autowired
-	private PluginConfigProperties pluginConfigProperties;
+	public PluginConfigProperties pluginConfigProperties;
 	
 	public PluginServiceImpl() {
 		logger.debug("1---------------构造器");
@@ -214,5 +214,12 @@ public class PluginServiceImpl extends AbstractPluginService implements Initiali
 	public void autowired() {
 		logger.debug("2---------------autowired");
 	}
-	
+
+	public PluginConfigProperties getPluginConfigProperties() {
+		return pluginConfigProperties;
+	}
+
+	public void setPluginConfigProperties(PluginConfigProperties pluginConfigProperties) {
+		this.pluginConfigProperties = pluginConfigProperties;
+	}
 }
